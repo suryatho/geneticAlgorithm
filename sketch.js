@@ -1,21 +1,15 @@
-let a;
-
-let foodList = new Array(100).fill(null);
-let poisonList = [];
+let population;
 
 function setup() {
 	createCanvas(windowWidth*.9, windowHeight*.9);
 	a = new Agent(createVector(width / 2, height / 2));
 
-	foodList = foodList.map(f => (f = new food()));
+	population = new PopulationHandler(10, 100, 100);
 }
 
 function draw() {
 	background(0);
 
-	foodList.forEach(f => f.display());
-
-	a.behaviours(foodList);
-	a.update();
-	a.show();
+	population.update();
+	// console.log(population.food.length)
 }

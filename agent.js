@@ -4,15 +4,20 @@ class Agent {
 		this.vel = createVector();
 		this.acc = createVector();
 
-		this.maxForce = 0.5;
-		this.maxSpeed = 5;
+		this.maxForce = 0.3;
+		this.maxSpeed = 2;
 		this.w = 10;
+		this.health = 1000;
 
 		//DNA based traits
-		this.perception = 100;
+		this.dna = new agentDNA();
+		this.perception = this.dna.perception;
+		this.foodW = this.dna.foodW;
+		this.poisonW = this.dna.poisonW;
 	}
 
 	show() {
+		if (this.health <= 0) return;
 		push();
 		translate(this.pos.x, this.pos.y);
 		rotate(this.vel.heading() + PI / 2);
@@ -22,52 +27,66 @@ class Agent {
 	}
 
 	update() {
+		if (this.health <= 0) return;
 		this.acc.limit(this.maxForce);
 		this.vel.add(this.acc);
 		this.vel.limit(this.maxSpeed);
 		this.pos.add(this.vel);
 		this.acc.mult(0);
+		this.edges();
+		this.health--;
 	}
 
 	eat(ediblesArr) {
-		const closeByEdibles = ediblesArr.filter(
-			e => this.dist(e.pos) <= this.perception
-		);
-		if (closeByEdibles.length == 0) return this.applyForce(createVector(0, 0));
+		if (!ediblesArr) return createVector(0, 0);
+		const closeByEdibles = ediblesArr.filter(e => this.dist(e.pos) <= this.perception);
+		
+		if (closeByEdibles.length == 0) return createVector(0, 0);
 		
 		const closestEdible = closeByEdibles.reduce((closest, current) => {
 			const closestD = this.dist(closest.pos);
 			const currentD = this.dist(current.pos);
-			return closestD < currentD ? closest : current;
+			return (closestD < currentD) ? closest : current;
 		})
+
+		if (this.dist(closestEdible.pos) <= this.maxSpeed) {
+			this.health += closestEdible.nutrition;
+			const index = ediblesArr.indexOf(closestEdible);
+			ediblesArr.splice(index, 1);
+		}
+
 		return this.steer(closestEdible.pos);
 	}
 
-	behaviours(food) {
-		const foodForce = this.eat(food);
+	behaviours(food, poison) {
+		let foodForce = this.eat(food);
+		foodForce.mult(this.foodW);
 		this.applyForce(foodForce);
+
+		let poisonForce = this.eat(poison);
+		poisonForce.mult(this.poisonW);
+		this.applyForce(poisonForce);
 	}
 
 	edges() {
-		if (
-			x < this.w * 2 ||
-			x > width - this.w * 2 ||
-			y < this.w * 2 ||
-			y > height - this.w * 2
-		)
-			this.steerCenter();
-	}
-
-	steerCenter() {
-		this.steer(width / 2, height / 2);
+		if(
+			this.pos.x > width ||
+			this.pos.y > height ||
+			this.pos.x < 0 ||
+			this.pos.y < 0
+		) this.steerCenter();
 	}
 
 	steer(target) {
-		let desired = target.sub(this.pos);
+		let desired = p5.Vector.sub(target, this.pos);
 		desired.limit(this.maxSpeed);
-		let steer = desired.sub(this.vel);
+		let steer = p5.Vector.sub(desired, this.vel);
 		steer.limit(this.maxAcc);
 		return steer;
+	}
+
+	steerCenter() {
+		this.applyForce(this.steer(createVector(width/2, width/2)).mult(0.6));
 	}
 
 	applyForce = f => this.acc.add(f);
