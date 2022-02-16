@@ -14,7 +14,7 @@ class edible {
 class food extends edible {
 	constructor() {
 		super();
-		this.nutrition = 1;
+		this.nutrition = 10;
 		this.color = color(0, 255, 0);
 	}
 }
@@ -22,7 +22,7 @@ class food extends edible {
 class poison extends edible {
 	constructor() {
 		super();
-		this.nutrition = -1;
+		this.nutrition = -10;
 		this.color = color(255, 0, 0);
 	}
 }

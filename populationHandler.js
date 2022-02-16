@@ -14,8 +14,7 @@ class PopulationHandler {
 		});
 
 		this.population.forEach(n => {
-			n.behaviours(this.food, this.poison);
-			n.update();
+			n.update(this.food, this.poison);
 			n.show();
 		});
 
@@ -26,6 +25,7 @@ class PopulationHandler {
 	}
 
 	nextGen() {
-		// console.log("Time for next generation!")
+		parentGen = [...this.population];
+		matingPool = [];
 	}
 }

@@ -1,16 +1,17 @@
 class Agent {
-	constructor() {
+	constructor(dna) {
 		this.pos = createVector(random(width), random(height));
 		this.vel = createVector();
 		this.acc = createVector();
 
 		this.maxForce = 0.3;
-		this.maxSpeed = 2;
+		this.maxSpeed = 5;
 		this.w = 10;
-		this.health = 1000;
+		this.health = 300;
+		this.fitness = 0;
 
 		//DNA based traits
-		this.dna = new agentDNA();
+		this.dna = dna? new agentDNA(dna.perception, dna.foodW, dna.poisonW): new agentDNA();
 		this.perception = this.dna.perception;
 		this.foodW = this.dna.foodW;
 		this.poisonW = this.dna.poisonW;
@@ -26,15 +27,23 @@ class Agent {
 		pop();
 	}
 
-	update() {
+	update(food, poison) {
 		if (this.health <= 0) return;
+
+		//do the behaviours
+		this.behaviours(food, poison);
+
+		//all calculations for position here
 		this.acc.limit(this.maxForce);
 		this.vel.add(this.acc);
 		this.vel.limit(this.maxSpeed);
 		this.pos.add(this.vel);
 		this.acc.mult(0);
 		this.edges();
+
+		//changing values for health and fitness
 		this.health--;
+		this.fitness++;
 	}
 
 	eat(ediblesArr) {

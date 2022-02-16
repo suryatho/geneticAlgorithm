@@ -4,7 +4,7 @@ function setup() {
 	createCanvas(windowWidth*.9, windowHeight*.9);
 	a = new Agent(createVector(width / 2, height / 2));
 
-	population = new PopulationHandler(10, 100, 100);
+	population = new PopulationHandler(100, 100, 100);
 }
 
 function draw() {
